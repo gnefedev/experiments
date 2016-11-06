@@ -3,8 +3,8 @@ package com.gnefedev.sprcific
 /**
  * Created by gerakln on 06.11.16.
  */
-fun getSyncResult(proxy: Any): Int? {
-    return (proxy as MmtProxy).result
+fun getSyncResult(proxy: Any, timeout: Int): Int? {
+    return (proxy as MmtProxy).withTimeout(timeout).result
 }
 
 fun getMmtImplementationClass(apiClientInterface: Class<*>): Class<*> {

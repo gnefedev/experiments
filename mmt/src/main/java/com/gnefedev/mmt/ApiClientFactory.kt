@@ -45,27 +45,4 @@ internal class ApiClientFactory<T>(private val apiClientInterface: Class<T>) : F
         classLoader = resourceLoader.classLoader
     }
 
-    private class MmtInterceptor internal constructor(private val mmtImplementation: Any, clientInterface: Class<*>) : MethodInterceptor {
-        private val delegates: Map<Method, Method> = clientInterface
-                .methods
-                .map { Pair(it, getDelegate(it)) }
-                .toMap()
-
-        @Throws(Throwable::class)
-        override fun invoke(methodInvocation: MethodInvocation): Any? {
-            val delegate = delegates[methodInvocation.method]!!
-            val proxy = delegate.invoke(
-                    mmtImplementation,
-                    *methodInvocation.arguments
-            )
-            return getSyncResult(proxy)
-        }
-
-        private fun getDelegate(method: Method): Method {
-            return mmtImplementation.javaClass.getMethod(
-                    method.name,
-                    *method.parameterTypes
-            )
-        }
-    }
 }
