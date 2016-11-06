@@ -12,10 +12,7 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Import({
-        ApiClientRegistrar.class,
-        MockConfig.class
-})
+@Import(ApiClientRegistrar.class )
 public @interface EnableMmtClient {
     String[] basePackages();
 }

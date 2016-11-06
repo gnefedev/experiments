@@ -1,7 +1,6 @@
 package com.gnefedev.mmt;
 
-import com.gnefedev.api.Api;
-import com.gnefedev.api.MmtImplementation;
+import com.gnefedev.api.MmtProxy;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.aop.framework.ProxyFactory;
@@ -19,7 +18,7 @@ import java.util.Map;
 /**
  * Created by gerakln on 06.11.16.
  */
-public class ApiClientFactory<T> implements FactoryBean<T>, BeanFactoryAware, ResourceLoaderAware {
+class ApiClientFactory<T> implements FactoryBean<T>, BeanFactoryAware, ResourceLoaderAware {
 
     private final Class<T> apiClientInterface;
     private BeanFactory beanFactory;
@@ -35,30 +34,13 @@ public class ApiClientFactory<T> implements FactoryBean<T>, BeanFactoryAware, Re
         proxyFactory.setTarget(apiClientInterface);
         proxyFactory.setInterfaces(apiClientInterface.getInterfaces());
 
-        Object mmtImplementation = beanFactory.getBean(getMmtImplementationClass());
+        Object mmtImplementation = beanFactory.getBean(ApiClientRegistrar.getMmtImplementationClass(apiClientInterface));
 
         proxyFactory.addAdvice(new MmtInterceptor(mmtImplementation, apiClientInterface));
 
         @SuppressWarnings("unchecked")
         T proxy = (T) proxyFactory.getProxy(classLoader);
         return proxy;
-    }
-
-    private Class<?> getMmtImplementationClass() {
-        try {
-            return Class.forName(getApiInterface().getPackage().getName() + ".MmtImplementation");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private Class<?> getApiInterface() {
-        for (Class<?> apiInterface : apiClientInterface.getInterfaces()) {
-            if (apiInterface.isAnnotationPresent(Api.class)) {
-                return apiInterface;
-            }
-        }
-        throw new IllegalArgumentException(apiClientInterface + " не наследует @Api интеофейса");
     }
 
     @Override
@@ -97,7 +79,7 @@ public class ApiClientFactory<T> implements FactoryBean<T>, BeanFactoryAware, Re
         @Override
         public Object invoke(MethodInvocation methodInvocation) throws Throwable {
             Method delegate = delegates.get(methodInvocation.getMethod());
-            MmtImplementation.Proxy proxy = (MmtImplementation.Proxy) delegate.invoke(
+            MmtProxy proxy = (MmtProxy) delegate.invoke(
                     mmtImplementation,
                     methodInvocation.getArguments()
             );

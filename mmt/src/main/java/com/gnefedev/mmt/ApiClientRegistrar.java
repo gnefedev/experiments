@@ -1,5 +1,6 @@
 package com.gnefedev.mmt;
 
+import com.gnefedev.api.Api;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -18,7 +19,7 @@ import java.util.Set;
 /**
  * Created by gerakln on 06.11.16.
  */
-public class ApiClientRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware {
+class ApiClientRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware {
 
     private ResourceLoader resourceLoader;
 
@@ -27,15 +28,52 @@ public class ApiClientRegistrar implements ImportBeanDefinitionRegistrar, Resour
         Set<Class<?>> apiClients = getApiClients(annotationMetadata);
 
         for (Class<?> apiClientInterface : apiClients) {
-            BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(ApiClientFactory.class);
+            registerApiClient(registry, apiClientInterface);
 
-            builder.addConstructorArgValue(apiClientInterface);
-            registry.registerBeanDefinition(
-                    Introspector.decapitalize(apiClientInterface.getSimpleName()),
-                    builder.getBeanDefinition()
-            );
-
+            registerMmtClient(registry, apiClientInterface);
         }
+    }
+
+    private void registerMmtClient(BeanDefinitionRegistry registry, Class<?> apiClientInterface) {
+        Class<?> mmtImplementationClass = getMmtImplementationClass(apiClientInterface);
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(mmtImplementationClass);
+
+        registry.registerBeanDefinition(
+                getBeanName(mmtImplementationClass),
+                builder.getBeanDefinition()
+        );
+    }
+
+    private void registerApiClient(BeanDefinitionRegistry registry, Class<?> apiClientInterface) {
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(ApiClientFactory.class);
+
+        builder.addConstructorArgValue(apiClientInterface);
+        registry.registerBeanDefinition(
+                getBeanName(apiClientInterface),
+                builder.getBeanDefinition()
+        );
+    }
+
+    private String getBeanName(Class<?> apiClientInterface) {
+        return Introspector.decapitalize(apiClientInterface.getSimpleName());
+    }
+
+
+    static Class<?> getMmtImplementationClass(Class<?> apiClientInterface) {
+        try {
+            return Class.forName(getApiInterface(apiClientInterface).getPackage().getName() + ".MmtImplementation");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static Class<?> getApiInterface(Class<?> apiClientInterface) {
+        for (Class<?> apiInterface : apiClientInterface.getInterfaces()) {
+            if (apiInterface.isAnnotationPresent(Api.class)) {
+                return apiInterface;
+            }
+        }
+        throw new IllegalArgumentException(apiClientInterface + " не наследует @Api интеофейса");
     }
 
     private Set<Class<?>> getApiClients(AnnotationMetadata annotationMetadata) {
