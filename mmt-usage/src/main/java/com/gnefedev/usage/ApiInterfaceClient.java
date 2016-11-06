@@ -1,6 +1,6 @@
 package com.gnefedev.usage;
 
-import com.gnefedev.api.ApiInterface;
+import com.gnefedev.sprcific.ApiInterface;
 import com.gnefedev.mmt.ApiClient;
 
 /**

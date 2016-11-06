@@ -1,7 +1,7 @@
 package com.gnefedev.test;
 
 import com.gnefedev.AppConfig;
-import com.gnefedev.api.ApiInterface;
+import com.gnefedev.sprcific.ApiInterface;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
