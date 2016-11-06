@@ -1,16 +1,12 @@
 package com.gnefedev.mmt
 
 import com.gnefedev.sprcific.getMmtImplementationClass
-import com.gnefedev.sprcific.getSyncResult
-import org.aopalliance.intercept.MethodInterceptor
-import org.aopalliance.intercept.MethodInvocation
 import org.springframework.aop.framework.ProxyFactory
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.BeanFactoryAware
 import org.springframework.beans.factory.FactoryBean
 import org.springframework.context.ResourceLoaderAware
 import org.springframework.core.io.ResourceLoader
-import java.lang.reflect.Method
 
 /**
  * Created by gerakln on 06.11.16.
@@ -23,7 +19,7 @@ internal class ApiClientFactory<T>(private val apiClientInterface: Class<T>) : F
     override fun getObject(): T {
         val proxyFactory = ProxyFactory()
         proxyFactory.setTarget(apiClientInterface)
-        proxyFactory.setInterfaces(*apiClientInterface.interfaces)
+        proxyFactory.setInterfaces(apiClientInterface, *apiClientInterface.interfaces)
 
         val mmtImplementation = beanFactory.getBean(getMmtImplementationClass(apiClientInterface))
 

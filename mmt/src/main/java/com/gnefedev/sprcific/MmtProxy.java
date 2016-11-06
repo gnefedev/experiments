@@ -4,12 +4,6 @@ package com.gnefedev.sprcific;
  * Created by gerakln on 06.11.16.
  */
 public abstract class MmtProxy {
-    private final String itemName;
-
-    MmtProxy(String itemName) {
-        this.itemName = itemName;
-    }
-
     public MmtProxy withTimeout(int timeout) {
         return this;
     }
@@ -20,7 +14,7 @@ public abstract class MmtProxy {
         return new Holder(getResult());
     }
 
-    private static class Holder {
+    public static class Holder {
         private final Integer result;
 
         private Holder(Integer result) {

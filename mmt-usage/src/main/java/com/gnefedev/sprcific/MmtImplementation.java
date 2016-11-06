@@ -16,7 +16,7 @@ public class MmtImplementation {
     }
 
     public MmtProxy getPrice(final String itemName) {
-        return new MmtProxy(itemName) {
+        return new MmtProxy() {
             @Override
             public Integer getResult()  {
                 return MmtImplementation.prices.get(itemName);
