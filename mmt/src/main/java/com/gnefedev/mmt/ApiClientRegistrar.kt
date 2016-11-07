@@ -29,10 +29,12 @@ internal class ApiClientRegistrar : ImportBeanDefinitionRegistrar, ResourceLoade
 
     private fun registerMmtClient(registry: BeanDefinitionRegistry, apiClientInterface: Class<*>) {
         val mmtImplementationClass = getMmtImplementationClass(apiClientInterface)
-        val builder = BeanDefinitionBuilder.rootBeanDefinition(mmtImplementationClass)
+        val builder = BeanDefinitionBuilder.rootBeanDefinition(MmtImplFabric::class.java)
+        builder.addConstructorArgValue(mmtImplementationClass)
 
         registry.registerBeanDefinition(mmtImplementationClass.getBeanName(), builder.beanDefinition)
     }
+
 
     private fun registerApiClient(registry: BeanDefinitionRegistry, apiClientInterface: Class<*>) {
         val builder = BeanDefinitionBuilder.rootBeanDefinition(ApiClientFactory::class.java)

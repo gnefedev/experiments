@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Configuration
-@Import(ApiClientRegistrar.class )
+@Import({ApiClientRegistrar.class, MmtConfig.class} )
 public @interface EnableMmtClient {
     String[] basePackages();
 }
