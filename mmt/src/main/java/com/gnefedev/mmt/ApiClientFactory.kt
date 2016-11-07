@@ -1,6 +1,6 @@
 package com.gnefedev.mmt
 
-import com.gnefedev.sprcific.getMmtImplementationClass
+import com.gnefedev.specific.getMmtImplementationClass
 import org.springframework.aop.framework.ProxyFactory
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.BeanFactoryAware

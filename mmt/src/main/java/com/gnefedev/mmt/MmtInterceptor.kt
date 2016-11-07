@@ -1,7 +1,7 @@
 package com.gnefedev.mmt
 
-import com.gnefedev.sprcific.getAsyncResult
-import com.gnefedev.sprcific.getSyncResult
+import com.gnefedev.specific.getAsyncResult
+import com.gnefedev.specific.getSyncResult
 import org.aopalliance.intercept.MethodInterceptor
 import org.aopalliance.intercept.MethodInvocation
 import java.lang.reflect.Method

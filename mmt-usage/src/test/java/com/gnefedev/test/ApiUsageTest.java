@@ -1,7 +1,7 @@
 package com.gnefedev.test;
 
 import com.gnefedev.AppConfig;
-import com.gnefedev.sprcific.ApiInterface;
+import com.gnefedev.specific.ApiInterface;
 import com.gnefedev.usage.ApiInterfaceClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;

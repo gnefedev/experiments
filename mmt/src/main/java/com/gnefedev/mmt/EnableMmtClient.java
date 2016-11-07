@@ -1,5 +1,6 @@
 package com.gnefedev.mmt;
 
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.ElementType;
@@ -12,6 +13,7 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
+@Configuration
 @Import(ApiClientRegistrar.class )
 public @interface EnableMmtClient {
     String[] basePackages();

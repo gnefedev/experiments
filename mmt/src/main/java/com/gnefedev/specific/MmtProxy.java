@@ -1,4 +1,4 @@
-package com.gnefedev.sprcific;
+package com.gnefedev.specific;
 
 /**
  * Created by gerakln on 06.11.16.

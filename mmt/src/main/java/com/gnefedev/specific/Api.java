@@ -1,4 +1,4 @@
-package com.gnefedev.sprcific;
+package com.gnefedev.specific;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,4 +1,4 @@
-package com.gnefedev.sprcific;
+package com.gnefedev.specific;
 
 import java.util.HashMap;
 import java.util.Map;
