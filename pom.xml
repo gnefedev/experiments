@@ -21,8 +21,19 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jdk>1.8</jdk>
-        <kotlin.version>1.1.2</kotlin.version>
+        <kotlin.version>1.1.4</kotlin.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>central</id>
+            <name>bintray</name>
+            <url>http://jcenter.bintray.com</url>
+        </repository>
+    </repositories>
 
     <dependencyManagement>
         <dependencies>
@@ -35,6 +46,12 @@
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-reflect</artifactId>
                 <version>${kotlin.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jetbrains.kotlinx</groupId>
+                <artifactId>kotlinx-coroutines-core</artifactId>
+                <version>0.18</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -58,6 +75,9 @@
                     <version>${kotlin.version}</version>
 
                     <configuration>
+                        <args>
+                            <arg>-Xcoroutines=enable</arg>
+                        </args>
                         <compilerPlugins>
                             <plugin>all-open</plugin>
                             <plugin>spring</plugin>
