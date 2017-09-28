@@ -14,6 +14,7 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlin_version"
     }
 }
 
@@ -27,10 +28,15 @@ repositories {
 }
 
 apply plugin: 'application'
+apply plugin: 'kotlin-kapt'
+apply plugin: "kotlin-allopen"
+apply plugin: 'kotlin'
 
 mainClassName = "com.gnefedev.coroutine.BenchmarkOfServer"
 
-apply plugin: 'kotlin'
+allOpen {
+    annotations(["org.openjdk.jmh.annotations.Fork", "org.openjdk.jmh.annotations.State"])
+}
 
 kotlin {
     experimental {
@@ -39,12 +45,20 @@ kotlin {
 }
 
 dependencies {
-    compile 'org.openjdk.jmh:jmh-core:1.14.1'
-    compile 'org.openjdk.jmh:jmh-generator-annprocess:1.14.1'
+    compile 'org.openjdk.jmh:jmh-core:1.19'
+    compile 'org.openjdk.jmh:jmh-generator-annprocess:1.19'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
     compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.18"
     compile "org.jetbrains.kotlinx:kotlinx-coroutines-nio:0.18"
-    compile "junit:junit:4.12"
+
+    compile 'org.asynchttpclient:async-http-client:2.0.37'
+
+    testCompile "junit:junit:4.12"
+}
+
+dependencies {
+    kapt 'org.openjdk.jmh:jmh-core:1.19'
+    kapt 'org.openjdk.jmh:jmh-generator-annprocess:1.19'
 }
 
 compileKotlin {
