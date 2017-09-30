@@ -1,4 +1,4 @@
-package com.gnefedev.coroutine
+package com.gnefedev.coroutine.helper
 
 import kotlinx.coroutines.experimental.nio.aRead
 import org.openjdk.jmh.annotations.Scope
@@ -11,7 +11,7 @@ import java.nio.file.Path
 
 @State(Scope.Benchmark)
 class FileHolder {
-    private val file = File(BenchmarkOfIO::class.java.classLoader.getResource("toRead.txt").toURI())
+    private val file = File(FileHolder::class.java.classLoader.getResource("toRead.txt").toURI())
     private val filePath: Path = file.toPath()
     private val size = file.length().toInt()
 

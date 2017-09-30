@@ -1,5 +1,6 @@
-package com.gnefedev.coroutine
+package com.gnefedev.coroutine.benchmark
 
+import com.gnefedev.coroutine.helper.FileHolder
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.runBlocking

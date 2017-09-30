@@ -1,4 +1,4 @@
-package com.gnefedev.coroutine
+package com.gnefedev.coroutine.helper
 
 import org.openjdk.jmh.annotations.Scope
 import org.openjdk.jmh.annotations.State

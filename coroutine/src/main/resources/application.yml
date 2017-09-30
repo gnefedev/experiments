@@ -1,0 +1,3 @@
+spring.datasource.url: jdbc:postgresql://localhost:5432/for_benchmark
+spring.datasource.username: for_benchmark
+spring.datasource.password: 123456

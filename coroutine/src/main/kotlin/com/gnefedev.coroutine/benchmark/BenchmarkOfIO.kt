@@ -1,13 +1,10 @@
-package com.gnefedev.coroutine
+package com.gnefedev.coroutine.benchmark
 
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.async
+import com.gnefedev.coroutine.helper.FileHolder
 import kotlinx.coroutines.experimental.runBlocking
 import org.openjdk.jmh.annotations.*
 import org.openjdk.jmh.runner.Runner
 import org.openjdk.jmh.runner.options.OptionsBuilder
-import java.math.BigDecimal
-import java.util.*
 import java.util.concurrent.Callable
 import java.util.concurrent.ForkJoinPool
 
