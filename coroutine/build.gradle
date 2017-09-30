@@ -52,6 +52,7 @@ dependencies {
     compile "org.jetbrains.kotlinx:kotlinx-coroutines-nio:0.18"
 
     compile 'org.asynchttpclient:async-http-client:2.0.37'
+    compile 'com.github.mauricio:postgresql-async_2.12:0.2.21'
 
     testCompile "junit:junit:4.12"
 }
