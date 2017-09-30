@@ -18,10 +18,10 @@ private val goal = availableProcessors * 500
 
 private val warmUpIterations = 10
 private val measurementsIterations = 30
-private val threeOfForPartsIsIo = (1..goal * 3).map { random.get().nextInt() % 4 != 1 }
-private val halfPartIsIo = (1..goal * 8).map { random.get().nextInt() % 2 == 1 }
-private val fourthPartIsIo = (1..goal * 32).map { random.get().nextInt() % 4 == 1 }
-private val eightPartIsIo = (1..goal * 64).map { random.get().nextInt() % 8 == 1 }
+private val threeOfForPartsIsIo = (1..goal * 3).map { random.get().nextInt(4) != 1 }
+private val halfPartIsIo = (1..goal * 8).map { random.get().nextInt(2) == 1 }
+private val fourthPartIsIo = (1..goal * 32).map { random.get().nextInt(4) == 1 }
+private val eightPartIsIo = (1..goal * 64).map { random.get().nextInt(8) == 1 }
 
 fun main(args: Array<String>) {
     repeat(warmUpIterations) {

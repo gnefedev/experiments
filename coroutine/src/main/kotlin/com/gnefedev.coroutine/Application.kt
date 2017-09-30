@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
 import java.util.*
 import javax.annotation.PostConstruct
+import kotlin.math.absoluteValue
 
 @SpringBootApplication
 class Application
@@ -20,21 +21,42 @@ class BaseSetup(
 ) {
     @PostConstruct
     fun init() {
-        jdbcTemplate.execute("DROP TABLE IF EXISTS BENCHMARK")
-        jdbcTemplate.execute("""CREATE TABLE BENCHMARK(
+        jdbcTemplate.execute("DROP TABLE IF EXISTS PEOPLE")
+        jdbcTemplate.execute("DROP TABLE IF EXISTS PAYMENTS")
+        jdbcTemplate.execute("""CREATE TABLE PEOPLE(
                                    ID                  SERIAL  PRIMARY KEY,
-                                   SOME_TEXT           TEXT    NOT NULL,
+                                   FIRST_NAME                TEXT    NOT NULL,
                                    ROW_NUM             INT     NOT NULL
 )""")
+        jdbcTemplate.execute("""CREATE TABLE PAYMENTS(
+                                   ID                  SERIAL  PRIMARY KEY,
+                                   PAYMENT             INT     NOT NULL,
+                                   PEOPLE_ID           INT     NOT NULL
+)""")
+
         val random = Random()
-        for(count in 0..10_000) {
-            jdbcTemplate.queryForObject(
-                    "INSERT INTO BENCHMARK (SOME_TEXT, ROW_NUM) VALUES  (?, ?) RETURNING ID",
+        for (count in 0..10_000) {
+            val id = jdbcTemplate.queryForObject(
+                    "INSERT INTO PEOPLE (FIRST_NAME, ROW_NUM) VALUES  (?, ?) RETURNING ID",
                     Int::class.java,
                     random.nextDouble().toString(),
                     count
             )
+            repeat(random.nextInt(4).absoluteValue + 1) {
+                jdbcTemplate.queryForObject(
+                        "INSERT INTO PAYMENTS (PAYMENT, PEOPLE_ID) VALUES (?, ?) RETURNING ID",
+                        Int::class.java,
+                        random.nextInt(3000).absoluteValue,
+                        id
+                )
+            }
         }
     }
 }
 
+data class Result(
+        val firstName: String,
+        val payments: Int,
+        val dataFromYandex: String,
+        val randomFromFile: String
+)

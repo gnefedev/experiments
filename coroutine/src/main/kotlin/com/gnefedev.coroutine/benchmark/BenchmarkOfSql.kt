@@ -18,7 +18,7 @@ class BenchmarkOfSql {
     @Benchmark
     fun syncQuery(beansHolder: BeansHolder, randomHolder: RandomHolder): String {
         return beansHolder.jdbcTemplate.queryForObject(
-                "SELECT SOME_TEXT FROM BENCHMARK WHERE ROW_NUM = ${(randomHolder.random.nextInt() % 10_000).absoluteValue}",
+                "SELECT FIRST_NAME FROM PEOPLE WHERE ROW_NUM = ${randomHolder.random.nextInt(10_000).absoluteValue}",
                 String::class.java
         )
     }
@@ -28,9 +28,9 @@ class BenchmarkOfSql {
         beansHolder
                 .asyncPgsql
                 .connectionPool
-                .sendQuery("SELECT SOME_TEXT FROM BENCHMARK WHERE ROW_NUM = ${(randomHolder.random.nextInt() % 10_000).absoluteValue}")
+                .sendQuery("SELECT FIRST_NAME FROM PEOPLE WHERE ROW_NUM = ${randomHolder.random.nextInt(10_000).absoluteValue}")
                 .await()
-                .rows().get()[0]["SOME_TEXT"] as String
+                .rows().get()[0]["FIRST_NAME"] as String
     }
 
     @State(Scope.Benchmark)
