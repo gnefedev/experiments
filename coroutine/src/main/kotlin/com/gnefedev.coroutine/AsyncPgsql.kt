@@ -8,11 +8,13 @@ import com.github.mauricio.async.db.postgresql.PostgreSQLConnection
 import com.github.mauricio.async.db.postgresql.pool.PostgreSQLConnectionFactory
 import com.github.mauricio.async.db.postgresql.util.URLParser
 import com.github.mauricio.async.db.util.NettyUtils
+import kotlinx.coroutines.experimental.runBlocking
 import org.springframework.stereotype.Component
 import scala.concurrent.ExecutionContext
 import java.nio.charset.Charset
 import java.util.concurrent.ForkJoinPool
 import javax.annotation.PostConstruct
+import javax.annotation.PreDestroy
 
 @Component
 class AsyncPgsql {
@@ -26,7 +28,14 @@ class AsyncPgsql {
         val factory: ObjectFactory<PostgreSQLConnection> = PostgreSQLConnectionFactory(configuration,
                 NettyUtils.DefaultEventLoopGroup(),
                 ExecutionContext.fromExecutor(ForkJoinPool.commonPool()))
-        connectionPool = ConnectionPool(factory, PoolConfiguration(100, 10, 100, 1000), ExecutionContext.fromExecutor(ForkJoinPool.commonPool()))
+        connectionPool = ConnectionPool(factory, PoolConfiguration(64, 64, 512, 10_000), ExecutionContext.fromExecutor(ForkJoinPool.commonPool()))
+    }
+
+    @PreDestroy
+    fun tearDown() {
+        runBlocking {
+            connectionPool.close().await()
+        }
     }
 }
 

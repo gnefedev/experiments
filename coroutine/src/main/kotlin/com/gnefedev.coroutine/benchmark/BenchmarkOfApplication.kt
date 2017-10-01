@@ -11,6 +11,9 @@ import kotlin.math.absoluteValue
 
 val httpClient = RestTemplate()
 
+//Benchmark                      Mode  Cnt    Score    Error  Units
+//BenchmarkOfApplication.async  thrpt   20  151.128 ±  8.315  ops/s
+//BenchmarkOfApplication.sync   thrpt   20  157.127 ± 10.344  ops/s
 @Fork(1)
 @Threads(Threads.MAX)
 class BenchmarkOfApplication {
@@ -32,5 +35,4 @@ fun main(args: Array<String>) {
             .jvmArgs("-Xmx2g")
             .build()
     Runner(options).run()
-
 }

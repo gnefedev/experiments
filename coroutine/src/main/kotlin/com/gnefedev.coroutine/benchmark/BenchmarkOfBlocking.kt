@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicLong
 private val random = ThreadLocal.withInitial { Random() }
 
 private val availableProcessors = Runtime.getRuntime().availableProcessors()
-private val goal = availableProcessors * 500
+private val goal = availableProcessors * 400
 
 private val warmUpIterations = 10
 private val measurementsIterations = 30
@@ -23,6 +23,26 @@ private val halfPartIsIo = (1..goal * 8).map { random.get().nextInt(2) == 1 }
 private val fourthPartIsIo = (1..goal * 32).map { random.get().nextInt(4) == 1 }
 private val eightPartIsIo = (1..goal * 64).map { random.get().nextInt(8) == 1 }
 
+//Tree of For parts is io:
+//Blocked: time: 117 ms, calculations: 497, calculations per ms: 4.244235695986337
+//Not blocked: time: 116 ms, calculations: 584, calculations per ms: 5.039919586444572
+//time difference: 0.991175633361799
+//calculations per ms difference: 0.8421236932830602
+//Half part is io:
+//Blocked: time: 128 ms, calculations: 1522, calculations per ms: 11.89198334200937
+//Not blocked: time: 127 ms, calculations: 1652, calculations per ms: 12.948537095088819
+//time difference: 0.9963560645497137
+//calculations per ms difference: 0.9184036200135548
+//Fourth part is io:
+//Blocked: time: 163 ms, calculations: 4958, calculations per ms: 30.392317123007764
+//Not blocked: time: 164 ms, calculations: 4960, calculations per ms: 30.233238520926452
+//time difference: 1.0057212913771965
+//calculations per ms difference: 1.0052617122697989
+//Eight part is io:
+//Blocked: time: 230 ms, calculations: 11381, calculations per ms: 49.285508083140876
+//Not blocked: time: 238 ms, calculations: 11495, calculations per ms: 48.164106145251395
+//time difference: 1.033487297921478
+//calculations per ms difference: 1.0232829388446991
 fun main(args: Array<String>) {
     repeat(warmUpIterations) {
         blocked(halfPartIsIo)

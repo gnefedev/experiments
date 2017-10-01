@@ -5,7 +5,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
 import java.util.*
-import javax.annotation.PostConstruct
 import kotlin.math.absoluteValue
 
 @SpringBootApplication
@@ -19,7 +18,7 @@ fun main(args: Array<String>) {
 class BaseSetup(
         private val jdbcTemplate: JdbcTemplate
 ) {
-    @PostConstruct
+//    @PostConstruct
     fun init() {
         jdbcTemplate.execute("DROP TABLE IF EXISTS PEOPLE")
         jdbcTemplate.execute("DROP TABLE IF EXISTS PAYMENTS")

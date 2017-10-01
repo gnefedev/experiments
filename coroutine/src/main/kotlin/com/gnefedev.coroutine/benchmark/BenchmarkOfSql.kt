@@ -12,6 +12,9 @@ import org.openjdk.jmh.runner.options.OptionsBuilder
 import org.springframework.jdbc.core.JdbcTemplate
 import kotlin.math.absoluteValue
 
+//Benchmark                   Mode  Cnt     Score     Error  Units
+//BenchmarkOfSql.asyncQuery  thrpt   20  2346.152 ± 108.606  ops/s
+//BenchmarkOfSql.syncQuery   thrpt   20  2453.531 ± 100.639  ops/s
 @Fork(1)
 @Threads(Threads.MAX)
 class BenchmarkOfSql {
