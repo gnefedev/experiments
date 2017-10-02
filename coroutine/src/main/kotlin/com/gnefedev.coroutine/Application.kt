@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component
 import java.util.*
 import kotlin.math.absoluteValue
 
+val peopleCount = 500_000
+
 @SpringBootApplication
 class Application
 
@@ -34,19 +36,20 @@ class BaseSetup(
 )""")
 
         val random = Random()
-        for (count in 0..10_000) {
-            val id = jdbcTemplate.queryForObject(
+        for (batch in (0..peopleCount).chunked(500)) {
+            jdbcTemplate.batchUpdate(
                     "INSERT INTO PEOPLE (FIRST_NAME, ROW_NUM) VALUES  (?, ?) RETURNING ID",
-                    Int::class.java,
-                    random.nextDouble().toString(),
-                    count
+                    batch.map { arrayOf(random.nextDouble().toString(), it) }
             )
+        }
+
+        val ids = jdbcTemplate.queryForList("SELECT ID FROM PEOPLE", Int::class.java)
+
+        for (batch in ids.chunked(500)) {
             repeat(random.nextInt(4).absoluteValue + 1) {
-                jdbcTemplate.queryForObject(
+                jdbcTemplate.batchUpdate(
                         "INSERT INTO PAYMENTS (PAYMENT, PEOPLE_ID) VALUES (?, ?) RETURNING ID",
-                        Int::class.java,
-                        random.nextInt(3000).absoluteValue,
-                        id
+                        batch.map { arrayOf(random.nextInt(3000).absoluteValue, it) }
                 )
             }
         }

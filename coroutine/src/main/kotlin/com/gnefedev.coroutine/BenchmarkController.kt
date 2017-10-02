@@ -2,12 +2,15 @@ package com.gnefedev.coroutine
 
 import com.gnefedev.coroutine.helper.FileHolder
 import com.gnefedev.coroutine.helper.executeAsync
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.runBlocking
 import org.asynchttpclient.DefaultAsyncHttpClient
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.context.request.async.DeferredResult
 
 @RestController
 class BenchmarkController(
@@ -44,35 +47,70 @@ class BenchmarkController(
     }
 
     @GetMapping("/async/{rowNum}")
-    fun async(@PathVariable(name = "rowNum") rowNum: Int): Result {
-        return runBlocking {
-            val firstName = asyncPgsql
-                    .connectionPool
-                    .sendQuery("SELECT FIRST_NAME FROM PEOPLE WHERE ROW_NUM = $rowNum")
-                    .await()
-                    .rows().get()[0]["FIRST_NAME"] as String
-            val id = asyncPgsql
-                    .connectionPool
-                    .sendQuery("SELECT ID FROM PEOPLE WHERE ROW_NUM = $rowNum")
-                    .await()
-                    .rows().get()[0]["ID"] as Int
-            val payments = asyncPgsql
-                    .connectionPool
-                    .sendQuery("SELECT SUM(PAYMENT) as payment FROM PAYMENTS WHERE PEOPLE_ID = $id")
-                    .await()
-                    .rows().get()[0]["payment"] as Long
+    fun async(@PathVariable(name = "rowNum") rowNum: Int) = runBlocking {
+        val firstName = asyncPgsql
+                .connectionPool
+                .sendQuery("SELECT FIRST_NAME FROM PEOPLE WHERE ROW_NUM = $rowNum")
+                .await()
+                .rows().get()[0]["FIRST_NAME"] as String
+        val id = asyncPgsql
+                .connectionPool
+                .sendQuery("SELECT ID FROM PEOPLE WHERE ROW_NUM = $rowNum")
+                .await()
+                .rows().get()[0]["ID"] as Int
+        val payments = asyncPgsql
+                .connectionPool
+                .sendQuery("SELECT SUM(PAYMENT) as payment FROM PAYMENTS WHERE PEOPLE_ID = $id")
+                .await()
+                .rows().get()[0]["payment"] as Long
 
-            val dataFromYandex = httpClient.prepareGet("https://yandex.ru/search/?text=$firstName&lr=$firstName")
-                    .executeAsync()
-                    .responseBody
-            Result(
-                    firstName,
-                    payments.toInt(),
-                    dataFromYandex,
-                    shuffle(fileHolder.readFileAsync())
-            )
-        }
+        val dataFromYandex = httpClient.prepareGet("https://yandex.ru/search/?text=$firstName&lr=$firstName")
+                .executeAsync()
+                .responseBody
+        Result(
+                firstName,
+                payments.toInt(),
+                dataFromYandex,
+                shuffle(fileHolder.readFileAsync())
+        )
     }
+
+    @GetMapping("/springAsync/{rowNum}")
+    fun asyncBySpring(@PathVariable(name = "rowNum") rowNum: Int) = springAsync {
+        val firstName = asyncPgsql
+                .connectionPool
+                .sendQuery("SELECT FIRST_NAME FROM PEOPLE WHERE ROW_NUM = $rowNum")
+                .await()
+                .rows().get()[0]["FIRST_NAME"] as String
+        val id = asyncPgsql
+                .connectionPool
+                .sendQuery("SELECT ID FROM PEOPLE WHERE ROW_NUM = $rowNum")
+                .await()
+                .rows().get()[0]["ID"] as Int
+        val payments = asyncPgsql
+                .connectionPool
+                .sendQuery("SELECT SUM(PAYMENT) as payment FROM PAYMENTS WHERE PEOPLE_ID = $id")
+                .await()
+                .rows().get()[0]["payment"] as Long
+
+        val dataFromYandex = httpClient.prepareGet("https://yandex.ru/search/?text=$firstName&lr=$firstName")
+                .executeAsync()
+                .responseBody
+        Result(
+                firstName,
+                payments.toInt(),
+                dataFromYandex,
+                shuffle(fileHolder.readFileAsync())
+        )
+    }
+}
+
+private fun <R> springAsync(body: suspend () -> R): DeferredResult<R> {
+    val result = DeferredResult<R>()
+    async(CommonPool) {
+        result.setResult(body.invoke())
+    }
+    return result
 }
 
 private fun shuffle(formFile: String) = formFile.toCharArray().toList().shuffled().joinToString()
