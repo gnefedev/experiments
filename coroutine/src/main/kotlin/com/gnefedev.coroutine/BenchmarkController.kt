@@ -47,7 +47,7 @@ class BenchmarkController(
     }
 
     @GetMapping("/async/{rowNum}")
-    fun async(@PathVariable(name = "rowNum") rowNum: Int) = runBlocking {
+    fun async(@PathVariable(name = "rowNum") rowNum: Int): Result = runBlocking {
         val firstName = asyncPgsql
                 .connectionPool
                 .sendQuery("SELECT FIRST_NAME FROM PEOPLE WHERE ROW_NUM = $rowNum")
@@ -76,7 +76,7 @@ class BenchmarkController(
     }
 
     @GetMapping("/springAsync/{rowNum}")
-    fun asyncBySpring(@PathVariable(name = "rowNum") rowNum: Int) = springAsync {
+    fun asyncBySpring(@PathVariable(name = "rowNum") rowNum: Int): DeferredResult<Result> = springAsync {
         val firstName = asyncPgsql
                 .connectionPool
                 .sendQuery("SELECT FIRST_NAME FROM PEOPLE WHERE ROW_NUM = $rowNum")
