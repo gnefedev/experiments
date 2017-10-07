@@ -6,6 +6,7 @@ import org.openjdk.jmh.annotations.*
 import org.openjdk.jmh.runner.Runner
 import org.openjdk.jmh.runner.options.OptionsBuilder
 import org.springframework.web.client.RestTemplate
+import java.util.concurrent.TimeUnit
 import kotlin.math.absoluteValue
 
 private val httpClient = RestTemplate()
@@ -23,9 +24,10 @@ private val httpClient = RestTemplate()
 //BenchmarkOfApplication.httpSync   thrpt   20  20.493 ± 0.215  ops/s
 //BenchmarkOfApplication.httpAsync   avgt   20   0.193 ± 0.005   s/op
 //BenchmarkOfApplication.httpSync    avgt   20   0.198 ± 0.002   s/op
+//BenchmarkOfApplication.delay       avgt   20  1564.704 ±  8.491   us/op
 @Fork(1)
 @BenchmarkMode(Mode.AverageTime, Mode.Throughput)
-@Threads(Threads.MAX)
+@Threads(1)
 class BenchmarkOfApplication {
     @Benchmark
     fun sync(randomHolder: RandomHolder): String = httpClient.getForEntity(
@@ -39,16 +41,24 @@ class BenchmarkOfApplication {
             String::class.java
     ).body
 
+    @OutputTimeUnit(TimeUnit.MICROSECONDS)
     @Benchmark
-    fun httpSync() = httpClient.getForEntity(
+    fun delay(): String = httpClient.getForEntity(
+            "http://localhost:8080/stub/1",
+            String::class.java
+    ).body
+
+    @Benchmark
+    fun httpSync(): String = httpClient.getForEntity(
             "http://192.168.0.11:8080/http/sync/100/1",
             String::class.java
-    )
+    ).body
+
     @Benchmark
-    fun httpAsync() = httpClient.getForEntity(
+    fun httpAsync(): String = httpClient.getForEntity(
             "http://192.168.0.11:8080/http/async/100/1",
             String::class.java
-    )
+    ).body
 }
 
 fun main(args: Array<String>) {
