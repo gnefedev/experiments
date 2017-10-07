@@ -32,6 +32,13 @@ apply plugin: 'kotlin-kapt'
 apply plugin: "kotlin-allopen"
 apply plugin: "kotlin-spring"
 apply plugin: 'kotlin'
+apply plugin: 'idea'
+
+idea {
+    module {
+        sourceDirs += file("src/main/kotlin")
+    }
+}
 
 mainClassName = "com.gnefedev.coroutine.ApplicationKt"
 
@@ -59,8 +66,6 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-web:1.5.7.RELEASE'
 
     compile 'postgresql:postgresql:9.4.1208-jdbc42-atlassian-hosted'
-
-    testCompile "junit:junit:4.12"
 }
 
 dependencies {

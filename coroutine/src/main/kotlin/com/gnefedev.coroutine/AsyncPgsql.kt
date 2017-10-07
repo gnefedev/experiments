@@ -17,8 +17,11 @@ import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 
 @Component
-class AsyncPgsql {
+class AsyncPgsql (
+        private val poolConfiguration: org.apache.tomcat.jdbc.pool.PoolConfiguration
+) {
     lateinit var connectionPool: ConnectionPool<out Connection>
+
     @PostConstruct
     fun init() {
         val configuration = URLParser.parse(
@@ -28,7 +31,7 @@ class AsyncPgsql {
         val factory: ObjectFactory<PostgreSQLConnection> = PostgreSQLConnectionFactory(configuration,
                 NettyUtils.DefaultEventLoopGroup(),
                 ExecutionContext.fromExecutor(ForkJoinPool.commonPool()))
-        connectionPool = ConnectionPool(factory, PoolConfiguration(64, 64, 512, 10_000), ExecutionContext.fromExecutor(ForkJoinPool.commonPool()))
+        connectionPool = ConnectionPool(factory, PoolConfiguration(poolConfiguration.maxActive, poolConfiguration.maxIdle.toLong(), poolConfiguration.maxWait, 10_000), ExecutionContext.fromExecutor(ForkJoinPool.commonPool()))
     }
 
     @PreDestroy

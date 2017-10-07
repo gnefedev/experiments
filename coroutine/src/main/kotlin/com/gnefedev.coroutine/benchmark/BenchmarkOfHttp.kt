@@ -13,7 +13,14 @@ import org.springframework.web.client.RestTemplate
 
 private val httpClient = RestTemplate()
 
-
+//4-core
+//Benchmark                              Mode  Cnt   Score   Error  Units
+//BenchmarkOfHttp.asyncReadInCoroutine  thrpt   20  98.375 ± 5.721  ops/s
+//BenchmarkOfHttp.syncReadInCoroutine   thrpt   20  90.700 ± 3.713  ops/s
+//8-core
+//Benchmark                              Mode  Cnt    Score   Error  Units
+//BenchmarkOfHttp.asyncReadInCoroutine  thrpt   20  421.974 ± 7.866  ops/s
+//BenchmarkOfHttp.syncReadInCoroutine   thrpt   20  410.956 ± 5.413  ops/s
 //Benchmark                              Mode  Cnt    Score   Error  Units
 //BenchmarkOfHttp.asyncReadInCoroutine  thrpt   20  304.831 ± 8.281  ops/s
 //BenchmarkOfHttp.restTemplate          thrpt   20  302.579 ± 7.834  ops/s

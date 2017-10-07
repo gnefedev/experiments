@@ -2,8 +2,7 @@ spring.datasource:
   url: jdbc:postgresql://localhost:5432/for_benchmark
   username: for_benchmark
   password: 123456
-spring:
-  datasource:
-    tomcat:
-      max-active: 64
-      max-wait: 512
+  tomcat:
+    max-active: 96
+    max-wait: 512
+    max-idle: 128

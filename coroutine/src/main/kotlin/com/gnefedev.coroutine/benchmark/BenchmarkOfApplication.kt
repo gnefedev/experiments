@@ -1,6 +1,7 @@
 package com.gnefedev.coroutine.benchmark
 
 import com.gnefedev.coroutine.helper.RandomHolder
+import com.gnefedev.coroutine.peopleCount
 import org.openjdk.jmh.annotations.*
 import org.openjdk.jmh.runner.Runner
 import org.openjdk.jmh.runner.options.OptionsBuilder
@@ -9,9 +10,14 @@ import kotlin.math.absoluteValue
 
 private val httpClient = RestTemplate()
 
+//4 core
 //Benchmark                      Mode  Cnt    Score    Error  Units
 //BenchmarkOfApplication.async  thrpt   20  151.128 ±  8.315  ops/s
 //BenchmarkOfApplication.sync   thrpt   20  157.127 ± 10.344  ops/s
+//8 core
+//Benchmark                            Mode  Cnt   Score   Error  Units
+//BenchmarkOfApplication.async        thrpt   20  25.626 ± 0.757  ops/s
+//BenchmarkOfApplication.sync         thrpt   20  25.739 ± 0.417  ops/s
 //Benchmark                          Mode  Cnt   Score   Error  Units
 //BenchmarkOfApplication.httpAsync  thrpt   20  21.010 ± 0.350  ops/s
 //BenchmarkOfApplication.httpSync   thrpt   20  20.493 ± 0.215  ops/s
@@ -22,15 +28,16 @@ private val httpClient = RestTemplate()
 @Threads(Threads.MAX)
 class BenchmarkOfApplication {
     @Benchmark
-    fun sync(randomHolder: RandomHolder) = httpClient.getForEntity(
-            "http://localhost:8080/sync/${randomHolder.random.nextInt(10_000).absoluteValue}",
+    fun sync(randomHolder: RandomHolder): String = httpClient.getForEntity(
+            "http://localhost:8080/sync/${randomHolder.random.nextInt(peopleCount).absoluteValue}",
             String::class.java
-    )
+    ).body
+
     @Benchmark
-    fun async(randomHolder: RandomHolder) = httpClient.getForEntity(
-            "http://localhost:8080/async/${randomHolder.random.nextInt(10_000).absoluteValue}",
+    fun async(randomHolder: RandomHolder): String = httpClient.getForEntity(
+            "http://localhost:8080/async/${randomHolder.random.nextInt(peopleCount).absoluteValue}",
             String::class.java
-    )
+    ).body
 
     @Benchmark
     fun httpSync() = httpClient.getForEntity(
