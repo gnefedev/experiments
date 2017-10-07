@@ -19,12 +19,12 @@ private val httpClient = RestTemplate()
 //Benchmark                            Mode  Cnt   Score   Error  Units
 //BenchmarkOfApplication.async        thrpt   20  25.626 ± 0.757  ops/s
 //BenchmarkOfApplication.sync         thrpt   20  25.739 ± 0.417  ops/s
-//Benchmark                          Mode  Cnt   Score   Error  Units
-//BenchmarkOfApplication.httpAsync  thrpt   20  21.010 ± 0.350  ops/s
-//BenchmarkOfApplication.httpSync   thrpt   20  20.493 ± 0.215  ops/s
-//BenchmarkOfApplication.httpAsync   avgt   20   0.193 ± 0.005   s/op
-//BenchmarkOfApplication.httpSync    avgt   20   0.198 ± 0.002   s/op
-//BenchmarkOfApplication.delay       avgt   20  1564.704 ±  8.491   us/op
+//Benchmark                          Mode  Cnt     Score   Error    Units
+//BenchmarkOfApplication.httpAsync  thrpt   20    21.010 ± 0.350    ops/s
+//BenchmarkOfApplication.httpSync   thrpt   20    20.493 ± 0.215    ops/s
+//BenchmarkOfApplication.httpAsync   avgt   20     0.193 ± 0.005    s/op
+//BenchmarkOfApplication.httpSync    avgt   20     0.198 ± 0.002    s/op
+//BenchmarkOfApplication.delay       avgt   20  1564.704 ± 8.491    us/op
 //BenchmarkOfApplication.justGet     avgt   20  2712.098 ± 328.388  us/op
 @Fork(1)
 @Threads(1)
