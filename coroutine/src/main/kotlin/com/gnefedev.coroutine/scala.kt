@@ -8,16 +8,14 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import java.util.concurrent.ForkJoinPool
 
-suspend fun <T> Future<T>.await(): T {
-    return suspendCancellableCoroutine { cont: CancellableContinuation<T> ->
-        onComplete({
-            if (it.isSuccess) {
-                cont.resume(it.get())
-            } else {
-                cont.resumeWithException(it.failed().get())
-            }
-        }, ExecutionContext.fromExecutor(ForkJoinPool.commonPool()))
-    }
+suspend fun <T> Future<T>.await(): T = suspendCancellableCoroutine { cont: CancellableContinuation<T> ->
+    onComplete({
+        if (it.isSuccess) {
+            cont.resume(it.get())
+        } else {
+            cont.resumeWithException(it.failed().get())
+        }
+    }, ExecutionContext.fromExecutor(ForkJoinPool.commonPool()))
 }
 
 operator fun <A, Repr> GenSeqLike<A, Repr>.get(int: Int): A = apply(int)

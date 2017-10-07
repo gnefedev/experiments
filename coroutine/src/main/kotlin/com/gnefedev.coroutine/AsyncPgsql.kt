@@ -9,6 +9,7 @@ import com.github.mauricio.async.db.postgresql.pool.PostgreSQLConnectionFactory
 import com.github.mauricio.async.db.postgresql.util.URLParser
 import com.github.mauricio.async.db.util.NettyUtils
 import kotlinx.coroutines.experimental.runBlocking
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties
 import org.springframework.stereotype.Component
 import scala.concurrent.ExecutionContext
 import java.nio.charset.Charset
@@ -18,20 +19,30 @@ import javax.annotation.PreDestroy
 
 @Component
 class AsyncPgsql (
-        private val poolConfiguration: org.apache.tomcat.jdbc.pool.PoolConfiguration
+        private val poolConfiguration: org.apache.tomcat.jdbc.pool.PoolConfiguration,
+        private val dataSourceProperties: DataSourceProperties
 ) {
     lateinit var connectionPool: ConnectionPool<out Connection>
 
     @PostConstruct
     fun init() {
         val configuration = URLParser.parse(
-                "jdbc:postgresql://localhost:5432/for_benchmark?user=for_benchmark&password=123456",
+                "${dataSourceProperties.url}?user=${dataSourceProperties.username}&password=${dataSourceProperties.password}",
                 Charset.forName("UTF-8")
         )
         val factory: ObjectFactory<PostgreSQLConnection> = PostgreSQLConnectionFactory(configuration,
                 NettyUtils.DefaultEventLoopGroup(),
                 ExecutionContext.fromExecutor(ForkJoinPool.commonPool()))
-        connectionPool = ConnectionPool(factory, PoolConfiguration(poolConfiguration.maxActive, poolConfiguration.maxIdle.toLong(), poolConfiguration.maxWait, 10_000), ExecutionContext.fromExecutor(ForkJoinPool.commonPool()))
+        connectionPool = ConnectionPool(
+                factory,
+                PoolConfiguration(
+                        poolConfiguration.maxActive,
+                        poolConfiguration.maxIdle.toLong(),
+                        poolConfiguration.maxWait / 30,
+                        10_000
+                ),
+                ExecutionContext.fromExecutor(ForkJoinPool.commonPool())
+        )
     }
 
     @PreDestroy
