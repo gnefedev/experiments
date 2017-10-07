@@ -25,8 +25,8 @@ private val httpClient = RestTemplate()
 //BenchmarkOfApplication.httpAsync   avgt   20   0.193 ± 0.005   s/op
 //BenchmarkOfApplication.httpSync    avgt   20   0.198 ± 0.002   s/op
 //BenchmarkOfApplication.delay       avgt   20  1564.704 ±  8.491   us/op
+//BenchmarkOfApplication.justGet     avgt   20  2712.098 ± 328.388  us/op
 @Fork(1)
-@BenchmarkMode(Mode.AverageTime, Mode.Throughput)
 @Threads(1)
 class BenchmarkOfApplication {
     @Benchmark
@@ -41,10 +41,19 @@ class BenchmarkOfApplication {
             String::class.java
     ).body
 
+    @BenchmarkMode(Mode.AverageTime)
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     @Benchmark
     fun delay(): String = httpClient.getForEntity(
             "http://localhost:8080/stub/1",
+            String::class.java
+    ).body
+
+    @BenchmarkMode(Mode.AverageTime)
+    @OutputTimeUnit(TimeUnit.MICROSECONDS)
+    @Benchmark
+    fun justGet(): String = httpClient.getForEntity(
+            "http://192.168.0.11:8080/stub/0",
             String::class.java
     ).body
 
