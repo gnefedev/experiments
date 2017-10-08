@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-docker run --rm --cpuset-cpus=0 --name=coroutine --network host com.gnefedev/coroutine:1.0
+docker run --rm --cpuset-cpus=0 --network host com.gnefedev/coroutine:1.0

@@ -18,4 +18,7 @@ class UtilController(
         delay(time)
         "delay for $time"
     }
+
+    @GetMapping("/nothingToDo")
+    fun nothingToDo() = "ok"
 }
