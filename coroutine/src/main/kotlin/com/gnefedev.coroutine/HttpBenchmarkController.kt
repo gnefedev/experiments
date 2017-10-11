@@ -21,25 +21,27 @@ class HttpBenchmarkController {
     private val syncHttpClient = RestTemplate()
     private val asyncHttpClient = DefaultAsyncHttpClient()
 
-    @GetMapping("/http/serial/sync/{count}")
+    @GetMapping("/http/serial/sync/{count}/{delay}")
     fun serialSync(
-            @PathVariable(name = "count") count: Int
+            @PathVariable(name = "count") count: Int,
+            @PathVariable(name = "delay") delay: Int
     ): String {
         return (0 until count)
                 .map {
-                    syncHttpClient.getForEntity("https://www.ok.ru/favicon.ico", String::class.java).body
+                    syncHttpClient.getForEntity("http://localhost:8081/stub/$delay", String::class.java).body
                 }
                 .joinToString(",")
     }
 
-    @GetMapping("/http/batch/sync/{count}")
+    @GetMapping("/http/batch/sync/{count}/{delay}")
     fun batchSync(
-            @PathVariable(name = "count") count: Int
+            @PathVariable(name = "count") count: Int,
+            @PathVariable(name = "delay") delay: Int
     ): String {
         return (0 until count)
                 .map {
                     Callable {
-                        syncHttpClient.getForEntity("https://www.ok.ru/favicon.ico", String::class.java).body
+                        syncHttpClient.getForEntity("http://localhost:8081/stub/$delay", String::class.java).body
                     }
                 }
                 .let { ForkJoinPool.commonPool().invokeAll(it) }
@@ -47,24 +49,26 @@ class HttpBenchmarkController {
                 .joinToString(",")
     }
 
-    @GetMapping("/http/serial/async/{count}")
+    @GetMapping("/http/serial/async/{count}/{delay}")
     fun serialAsync(
-            @PathVariable(name = "count") count: Int
+            @PathVariable(name = "count") count: Int,
+            @PathVariable(name = "delay") delay: Int
     ): DeferredResult<String> = asyncResponse {
         (0 until count)
-                .map { asyncHttpClient.prepareGet("https://www.ok.ru/favicon.ico").executeAsync() }
+                .map { asyncHttpClient.prepareGet("http://localhost:8081/stub/$delay").executeAsync() }
                 .map { it.responseBody }
                 .joinToString(",")
     }
 
-    @GetMapping("/http/batch/async_v1/{count}")
+    @GetMapping("/http/batch/async_v1/{count}/{delay}")
     fun batchAsyncV1(
-            @PathVariable(name = "count") count: Int
+            @PathVariable(name = "count") count: Int,
+            @PathVariable(name = "delay") delay: Int
     ): DeferredResult<String> = asyncResponse {
         (0 until count)
                 .map {
                     async(CommonPool) {
-                        asyncHttpClient.prepareGet("https://www.ok.ru/favicon.ico").executeAsync()
+                        asyncHttpClient.prepareGet("http://localhost:8081/stub/$delay").executeAsync()
                     }
                 }
                 .map { it.await() }
@@ -72,13 +76,14 @@ class HttpBenchmarkController {
                 .joinToString(",")
     }
 
-    @GetMapping("/http/batch/async_v2/{count}")
+    @GetMapping("/http/batch/async_v2/{count}/{delay}")
     fun batchAsyncV2(
-            @PathVariable(name = "count") count: Int
+            @PathVariable(name = "count") count: Int,
+            @PathVariable(name = "delay") delay: Int
     ): DeferredResult<String> = asyncResponse {
         (0 until count)
                 .map {
-                    asyncHttpClient.prepareGet("https://www.ok.ru/favicon.ico").future(CommonPool)
+                    asyncHttpClient.prepareGet("http://localhost:8081/stub/$delay").future(CommonPool)
                 }
                 .map { it.await() }
                 .map { it.responseBody }

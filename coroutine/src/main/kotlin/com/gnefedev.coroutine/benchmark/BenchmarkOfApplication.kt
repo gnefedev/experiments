@@ -91,8 +91,16 @@ class BenchmarkOfApplication {
     @BenchmarkMode(Mode.AverageTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Benchmark
+    fun withDelay(): String = httpClient.getForEntity(
+            "http://localhost:8081/stub/1",
+            String::class.java
+    ).body
+
+    @BenchmarkMode(Mode.AverageTime)
+    @OutputTimeUnit(TimeUnit.MILLISECONDS)
+    @Benchmark
     fun justGet(): String = httpClient.getForEntity(
-            "https://www.ok.ru/favicon.ico",
+            "http://localhost:8080/nothingToDo",
             String::class.java
     ).body
 
@@ -100,7 +108,7 @@ class BenchmarkOfApplication {
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Benchmark
     fun httpSerialSync(): String = httpClient.getForEntity(
-            "http://localhost:8080/http/serial/sync/20",
+            "http://localhost:8080/http/serial/sync/100/1",
             String::class.java
     ).body
 
@@ -108,7 +116,7 @@ class BenchmarkOfApplication {
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Benchmark
     fun httpSerialAsync(): String = httpClient.getForEntity(
-            "http://localhost:8080/http/serial/async/20",
+            "http://localhost:8080/http/serial/async/100/1",
             String::class.java
     ).body
 
@@ -116,7 +124,7 @@ class BenchmarkOfApplication {
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Benchmark
     fun httpBatchSync(): String = httpClient.getForEntity(
-            "http://localhost:8080/http/batch/sync/20",
+            "http://localhost:8080/http/batch/sync/100/1",
             String::class.java
     ).body
 
@@ -124,7 +132,7 @@ class BenchmarkOfApplication {
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Benchmark
     fun httpBatchAsyncV1(): String = httpClient.getForEntity(
-            "http://localhost:8080/http/batch/async_v1/20",
+            "http://localhost:8080/http/batch/async_v1/100/1",
             String::class.java
     ).body
 
@@ -132,7 +140,7 @@ class BenchmarkOfApplication {
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Benchmark
     fun httpBatchAsyncV2(): String = httpClient.getForEntity(
-            "http://localhost:8080/http/batch/async_v2/20",
+            "http://localhost:8080/http/batch/async_v2/100/1",
             String::class.java
     ).body
 }
