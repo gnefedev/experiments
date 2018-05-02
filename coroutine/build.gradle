@@ -2,15 +2,12 @@ group 'com.gnefedev'
 version '1.0'
 
 buildscript {
-    ext.kotlin_version = '1.2.0-beta-31'
+    ext.kotlin_version = '1.2.41'
     ext.springBootVersion = '1.5.7.RELEASE'
 
     repositories {
         jcenter()
         mavenCentral()
-        maven {
-            url "http://dl.bintray.com/kotlin/kotlin-eap-1.2"
-        }
         mavenLocal()
     }
     dependencies {
@@ -24,9 +21,6 @@ buildscript {
 repositories {
     jcenter()
     mavenCentral()
-    maven {
-        url "http://dl.bintray.com/kotlin/kotlin-eap-1.2"
-    }
     mavenLocal()
 }
 
@@ -60,7 +54,7 @@ kotlin {
 dependencies {
     compile 'org.openjdk.jmh:jmh-core:1.19'
     compile 'org.openjdk.jmh:jmh-generator-annprocess:1.19'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.18"
     compile "org.jetbrains.kotlinx:kotlinx-coroutines-nio:0.18"
 

@@ -1,0 +1,84 @@
+group 'com.gnefedev'
+version '1.0'
+
+buildscript {
+    ext.kotlinVersion = '1.2.41'
+    ext.coroutinesVersion = '0.22.5'
+    ext.springVersion = '5.0.5.RELEASE'
+    ext.springBootVersion = '2.0.1.RELEASE'
+    ext.junitVersion = '5.1.1'
+
+    repositories {
+        jcenter()
+        mavenCentral()
+        mavenLocal()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlinVersion"
+        classpath('se.transmode.gradle:gradle-docker:1.2')
+    }
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+    mavenLocal()
+}
+
+apply plugin: 'application'
+apply plugin: "kotlin-spring"
+apply plugin: 'kotlin'
+apply plugin: 'docker'
+
+mainClassName = "com.gnefedev.flux.ApplicationKt"
+
+kotlin {
+    experimental {
+        coroutines 'enable'
+    }
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutinesVersion"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$coroutinesVersion"
+
+    compile "org.springframework:spring-jdbc:$springVersion"
+    compile "org.springframework:spring-webmvc:$springVersion"
+    compile "org.eclipse.jetty:jetty-servlets:9.4.9.v20180320"
+    compile "org.springframework.boot:spring-boot-starter-jetty:$springBootVersion"
+
+//    compile "org.eclipse.jetty:jetty-servlets:9.4.9.v20180320"
+    compile "org.springframework:spring-webflux:$springVersion"
+    compile "io.projectreactor.ipc:reactor-netty:0.7.6.RELEASE"
+
+    compile 'postgresql:postgresql:9.4.1208-jdbc42-atlassian-hosted'
+    compile 'com.spotify:folsom:1.0.0'
+
+    compile 'org.slf4j:jcl-over-slf4j:1.7.25'
+    compile 'ch.qos.logback:logback-classic:1.1.11'
+    compile 'io.github.microutils:kotlin-logging:1.4.1'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+task buildDocker(type: Docker, dependsOn: build) {
+    applicationName = jar.baseName
+    dockerfile = file('Dockerfile')
+    doFirst {
+        copy {
+            from jar
+            into "$stageDir"
+        }
+    }
+}
+
+wrapper.gradleVersion = '4.7'
