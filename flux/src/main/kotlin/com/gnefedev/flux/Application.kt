@@ -2,6 +2,7 @@ package com.gnefedev.flux
 
 import com.gnefedev.flux.cats.AsyncCatsService
 import com.gnefedev.flux.cats.CatsAsyncController
+import com.gnefedev.flux.cats.CatsAsyncMvcController
 import com.gnefedev.flux.cats.CatsSyncController
 import com.gnefedev.flux.cats.SyncCatsService
 import com.spotify.folsom.MemcacheClient
@@ -13,6 +14,8 @@ import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.servlet.ServletHolder
 import org.eclipse.jetty.util.thread.QueuedThreadPool
 import org.postgresql.ds.PGPoolingDataSource
+import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory
+import org.springframework.boot.web.embedded.netty.NettyReactiveWebServerFactory
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -31,6 +34,7 @@ import org.springframework.web.servlet.DispatcherServlet
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
 import reactor.ipc.netty.http.server.HttpServer
 import java.io.Serializable
+import java.util.concurrent.ForkJoinPool
 import javax.sql.DataSource
 
 @Configuration
@@ -64,8 +68,13 @@ class DatasourceConfig {
 class MemcachedConfig {
     @Bean
     fun memcachedClient(): MemcacheClient<Serializable> = MemcacheClientBuilder.newSerializableObjectClient()
+//        .withReplyExecutor(ForkJoinPool.commonPool())
         .withAddress("localhost", 11211)
         .connectBinary()
+
+    companion object {
+        const val ttl = 24 * 60 * 60
+    }
 }
 
 @Configuration
@@ -77,6 +86,9 @@ class SyncApplication {
 
     @Bean
     fun catsController(catsService: SyncCatsService, memcacheClient: MemcacheClient<Serializable>) = CatsSyncController(catsService, memcacheClient)
+
+    @Bean
+    fun serverFactory() = JettyServletWebServerFactory()
 }
 
 @Configuration
@@ -89,6 +101,24 @@ class AsyncApplication {
 
     @Bean
     fun catsController(catsService: AsyncCatsService, memcacheClient: MemcacheClient<Serializable>) = CatsAsyncController(catsService, memcacheClient)
+
+    @Bean
+    fun serverFactory() = NettyReactiveWebServerFactory()
+}
+
+@Configuration
+@EnableWebMvc
+@Import(DatasourceConfig::class, MemcachedConfig::class)
+class AsyncMvcApplication {
+    @Bean
+    fun catsService(jdbcTemplate: JdbcTemplate, transactionTemplate: TransactionTemplate) =
+        AsyncCatsService(jdbcTemplate, transactionTemplate)
+
+    @Bean
+    fun catsController(catsService: AsyncCatsService, memcacheClient: MemcacheClient<Serializable>) = CatsAsyncMvcController(catsService, memcacheClient)
+
+    @Bean
+    fun serverFactory() = JettyServletWebServerFactory()
 }
 
 private val logger = KLogging()
@@ -98,33 +128,41 @@ fun main(args: Array<String>) {
 
     val serverType = System.getenv("SERVER_TYPE")
 
+    logger.logger.info { "cpu count: ${Runtime.getRuntime().availableProcessors()}" }
+
     logger.logger.info { "serverType: $serverType" }
 
-    if (serverType.toLowerCase() == "jetty") {
-        val maxThreads = 100
-        val server = Server(QueuedThreadPool(maxThreads))
-        val connector = ServerConnector(server)
-        connector.port = port
-        server.connectors = arrayOf(connector)
-        server.handler = ServletContextHandler().apply {
-            contextPath = "/"
-            val context = AnnotationConfigWebApplicationContext()
-            context.register(SyncApplication::class.java)
-            addServlet(ServletHolder(DispatcherServlet(context)), "/")
-            addEventListener(ContextLoaderListener(context))
+    when {
+        serverType.toLowerCase() == "jetty" -> startJetty(port, SyncApplication::class.java)
+        serverType.toLowerCase() == "jettyAsync".toLowerCase() -> startJetty(port, AsyncMvcApplication::class.java)
+        else -> {
+            val handler = WebHttpHandlerBuilder
+                .applicationContext(AnnotationConfigApplicationContext(AsyncApplication::class.java))
+                .build()
+            HttpServer.create(port)
+                .newHandler(ReactorHttpHandlerAdapter(handler))
+                .block()!!
+                .channel()
+                .closeFuture()
+                .sync()
         }
-        server.start()
-        server.join()
-    } else {
-        val handler = WebHttpHandlerBuilder
-            .applicationContext(AnnotationConfigApplicationContext(AsyncApplication::class.java))
-            .build()
-        HttpServer.create(port)
-            .newHandler(ReactorHttpHandlerAdapter(handler))
-            .block()!!
-            .channel()
-            .closeFuture()
-            .sync()
     }
+}
+
+private fun startJetty(port: Int, config: Class<*>) {
+    val maxThreads = 5000
+    val server = Server(QueuedThreadPool(maxThreads))
+    val connector = ServerConnector(server)
+    connector.port = port
+    server.connectors = arrayOf(connector)
+    server.handler = ServletContextHandler().apply {
+        contextPath = "/"
+        val context = AnnotationConfigWebApplicationContext()
+        context.register(config)
+        addServlet(ServletHolder(DispatcherServlet(context)), "/")
+        addEventListener(ContextLoaderListener(context))
+    }
+    server.start()
+    server.join()
 }
 
